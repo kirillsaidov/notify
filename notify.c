@@ -20,6 +20,9 @@
     #define ACCESS access
 #endif
 
+// app version
+#define NOTIFY_VERSION "1.0.0"
+
 /**
  * Cross-platform bell function that plays system notification sound or custom WAV file.
  * @param audio_file Path to WAV audio file. If NULL or file doesn't exist, plays default system bell.
@@ -53,6 +56,7 @@ void format_time(long seconds, char *const buffer, const size_t buf_size);
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
+        printf("notify v" NOTIFY_VERSION " -- command-line notification utility.\n");
         printf("Usage:\n");
         printf("    %s <time> <message>\n", argv[0]);
         printf("    %s [audio] <time> <message>\n", argv[0]);
