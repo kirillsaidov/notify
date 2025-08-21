@@ -1,3 +1,10 @@
+# Custom
+.vscode
+bin/
+lib/
+*.log
+*.old
+
 # Prerequisites
 *.d
 
