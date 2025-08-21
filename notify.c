@@ -75,18 +75,20 @@ int main(int argc, char *argv[]) {
 
     // Combine the message parts
     char message[4096] = {0};  // Reduced size for safety
-    size_t remaining_space = sizeof(message) - 1;
-    for (int i = 2 + (audio_file ? 1 : 0); i < argc && remaining_space > 0; i++) {
-        const size_t arg_len = strlen(argv[i]);
-        const size_t copy_len = (arg_len < remaining_space) ? arg_len : remaining_space;
-        
-        strncat(message, argv[i], copy_len);
-        remaining_space -= copy_len;
-        
-        if (i < argc - 1 && remaining_space > 0) {
-            strcat(message, " ");
-            remaining_space--;
+    size_t offset = 0;
+    for (int i = 2 + (audio_file ? 1 : 0); i < argc; i++) {
+        const int written = snprintf(
+            message + offset, 
+            sizeof(message) - offset,
+            "%s%s",
+            argv[i],
+            (i < argc - 1) ? " " : ""
+        );
+        if (written < 0 || (size_t)written >= sizeof(message) - offset) {
+            // Truncated or error
+            break;
         }
+        offset += written;
     }
 
     // Print
@@ -231,7 +233,7 @@ void notify(const char* source, const char* title, const char* message) {
                 "notify-send -a \"%s\" \"%s\" \"%s\" 2>/dev/null",
                 safe_source, safe_title, safe_message
             );
-            system(command);
+            system(command); // unused return value
         } else {
             // Fallback for systems without notify-send
             printf("[%s] %s: %s\n", safe_source, safe_title, safe_message);
@@ -252,7 +254,7 @@ int bell(const char *audio_file) {
             fflush(stdout);
             
             // Try system beep commands (fail silently if not available)
-            system("beep 2>/dev/null || pactl play-sample bell-terminal 2>/dev/null");
+            system("beep 2>/dev/null || pactl play-sample bell-terminal 2>/dev/null"); // unused return value
         #endif
         return 0;
     }
@@ -316,7 +318,7 @@ int bell(const char *audio_file) {
         // All custom audio attempts failed, fall back to system bell
         printf("\a");
         fflush(stdout);
-        system("beep 2>/dev/null || pactl play-sample bell-terminal 2>/dev/null");
+        system("beep 2>/dev/null || pactl play-sample bell-terminal 2>/dev/null"); // unused return value
     #endif
 
     // Indicate custom file failed
