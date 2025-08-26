@@ -13,11 +13,11 @@
 
 // Define GCC command
 #ifdef _WIN32
-    #define CMD "gcc -O2 -lwinmm notify.c -o bin/notify.exe -Wno-unused-result"
+    #define CMD "gcc -O2 -lwinmm main.c -o bin/notify.exe -Wno-unused-result"
 #elif defined(__APPLE__)
-    #define CMD "gcc -O2 -framework AudioToolbox -framework CoreFoundation notify.c -o bin/notify -Wno-unused-result"
+    #define CMD "gcc -O2 main.c -o bin/notify -framework AudioToolbox -framework CoreFoundation -Wno-unused-result"
 #else // unix
-    #define CMD "gcc -O2 notify.c -o bin/notify -Wno-unused-result"
+    #define CMD "gcc -O2 main.c -o bin/notify -Wno-unused-result"
 #endif
 
 int main(void) {
