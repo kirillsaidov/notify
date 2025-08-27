@@ -72,11 +72,7 @@ int ntf_beep_system(void) {
     {
         #error "Unimplemented for Windows!"
     }
-    #elif defined(__APPLE__) || defined(__MACH__)
-    {
-        #error "Unimplemented for MacOS!"
-    }
-    #else // unix
+    #else // unix & macos
     {
         printf("\a");
         fflush(stdout);
@@ -95,7 +91,12 @@ int ntf_beep(const char *audio_file) {
     }
     #elif defined(__APPLE__) || defined(__MACH__)
     {
-        #error "Unimplemented for MacOS!"
+        // build the command to play the audio file
+        char command[1024] = {0};
+        snprintf(command, sizeof(command), "afplay \"%s\" >/dev/null 2>&1 &", audio_file);
+        
+        // if all audio players failed, fall back to system beep
+        if (system(command) != 0) ntf_beep_system();
     }
     #else // unix
     {
@@ -132,8 +133,7 @@ int ntf_beep(const char *audio_file) {
         }
         
         // if all audio players failed, fall back to system beep
-        if (result != 0) return ntf_beep_system();
-        return 0;
+        if (result != 0) ntf_beep_system();
     }
     #endif
 
@@ -143,6 +143,7 @@ int ntf_beep(const char *audio_file) {
 
 int ntf_notify(const char *source, const char *title, const char *message) {
     // Handle NULL parameters with default values
+    int result = -1;
     const char* safe_source = (source && *source) ? source : "Notify";
     const char* safe_title = (title && *title) ? title : "Notification";
     const char* safe_message = (message && *message) ? message : "";
@@ -153,13 +154,22 @@ int ntf_notify(const char *source, const char *title, const char *message) {
     }
     #elif defined(__APPLE__) || defined(__MACH__)
     {
-        #error "Unimplemented for MacOS!"
+        // notify using osascript
+        char command[4096] = {0};
+        snprintf(command, sizeof(command), 
+                "osascript -e 'display notification \"%s\" with title \"%s\" subtitle \"%s\"'",
+                safe_message, safe_title, safe_source);
+        
+        // execute the command
+        result = system(command)
+        if (result != 0) {
+            printf("[%s] %s: %s\n", safe_source, safe_title, safe_message);
+        }
     }
     #else // unix
     {
         // notify using notify-send
         char command[4096] = {0};
-        int result = -1;
         if (ACCESS("/usr/bin/notify-send", F_OK) == 0) {
             snprintf(command, sizeof(command),
                 "notify-send -a \"%s\" \"%s\" \"%s\" 2>/dev/null",
@@ -172,11 +182,10 @@ int ntf_notify(const char *source, const char *title, const char *message) {
         if (result != 0) {
             printf("[%s] %s: %s\n", safe_source, safe_title, safe_message);
         }
-
-        return result;
     }
     #endif
-    return 0;
+
+    return result;
 }
 
 long ntf_parse_time(const char* time_str) {
@@ -244,7 +253,7 @@ void ntf_sleep(const long msecs) {
     {
         Sleep(msecs);
     }
-    #else
+    #else // unix & macos
     {
         struct timespec ts;
         ts.tv_sec = msecs / 1000;
