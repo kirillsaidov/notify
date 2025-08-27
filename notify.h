@@ -11,15 +11,10 @@
     #error "Unimplemented for Windows!"
     #define ACCESS _access
     #define F_OK 0
-#elif defined(__APPLE__) || defined(__MACH__)
-    #error "Unimplemented for MacOS!"
-    #define ACCESS access
-#else // unix
+#else // unix & macos
     #include <unistd.h>
     #define ACCESS access
 #endif
-
-#include <threads.h>
 
 /**
  * Cross-platform bell function that plays system notification sound.
@@ -72,7 +67,11 @@ int ntf_beep_system(void) {
     {
         #error "Unimplemented for Windows!"
     }
-    #else // unix & macos
+    #elif defined(__APPLE__) || defined(__MACH__)
+    {
+        system("osascript -e 'beep'");
+    }
+    #else // unix
     {
         printf("\a");
         fflush(stdout);
@@ -161,7 +160,7 @@ int ntf_notify(const char *source, const char *title, const char *message) {
                 safe_message, safe_title, safe_source);
         
         // execute the command
-        result = system(command)
+        result = system(command);
         if (result != 0) {
             printf("[%s] %s: %s\n", safe_source, safe_title, safe_message);
         }
