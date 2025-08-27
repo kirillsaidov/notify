@@ -240,8 +240,18 @@ void ntf_format_time(long seconds, char *const buffer, const size_t buf_size) {
 }
 
 void ntf_sleep(const long msecs) {
-    struct timespec ts = { .tv_sec = msecs / 1000, .tv_nsec = 0 };
-    thrd_sleep(&ts, NULL);
+    #if defined(_WIN32) || defined(_WIN64)
+    {
+        Sleep(msecs);
+    }
+    #else
+    {
+        struct timespec ts;
+        ts.tv_sec = msecs / 1000;
+        ts.tv_nsec = (msecs % 1000) * 1000000;
+        nanosleep(&ts, NULL);
+    }
+    #endif
 }
 
 #endif // NOTIFY_IMPLEMENTATION
