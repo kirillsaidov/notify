@@ -20,10 +20,10 @@ gcc build.c -o build
 
 # Example output:
 CMD: mkdir bin
-CMD: build notify.c
+CMD: build main.c
 Saved to 'bin/notify'
 ```
-This compiles `notify.c` and outputs the binary in the `bin/` directory.
+This compiles `notify` and outputs the binary in the `bin/` directory.
 
 ## ▶️ Usage
 ### Basic reminder

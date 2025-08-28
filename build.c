@@ -11,20 +11,22 @@
     #include <sys/types.h>
 #endif
 
+#define NOTIFY_SOURCE_FILE "main.c"
+
 // Define GCC command
 #ifdef _WIN32
-    #define CMD "gcc -O2 -lwinmm main.c -o bin/notify.exe -Wno-unused-result"
+    #define CMD "gcc -O2 -lwinmm " NOTIFY_SOURCE_FILE " -o bin/notify.exe -Wno-unused-result"
 #elif defined(__APPLE__)
-    #define CMD "gcc -O2 main.c -o bin/notify -framework AudioToolbox -framework CoreFoundation -Wno-unused-result"
+    #define CMD "gcc -O2 " NOTIFY_SOURCE_FILE " -o bin/notify -framework AudioToolbox -framework CoreFoundation -Wno-unused-result"
 #else // unix
-    #define CMD "gcc -O2 main.c -o bin/notify -Wno-unused-result"
+    #define CMD "gcc -O2 " NOTIFY_SOURCE_FILE " -o bin/notify -Wno-unused-result"
 #endif
 
 int main(void) {
     printf("CMD: mkdir bin\n");
     mkdir("bin", 0755);
 
-    printf("CMD: build notify.c\n");
+    printf("CMD: build " NOTIFY_SOURCE_FILE "\n");
     system(CMD);
     printf("Saved to 'bin/notify'\n");
     return 0;
