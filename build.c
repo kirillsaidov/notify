@@ -15,7 +15,7 @@
 
 // Define GCC command
 #ifdef _WIN32
-    #define CMD "gcc -O2 -lwinmm " NOTIFY_SOURCE_FILE " -o bin/notify.exe -Wno-unused-result"
+    #define CMD "gcc -O2 " NOTIFY_SOURCE_FILE " -o bin/notify.exe -lwinmm -lole32 -lcomctl32 -Wno-unused-result"
 #elif defined(__APPLE__)
     #define CMD "gcc -O2 " NOTIFY_SOURCE_FILE " -o bin/notify -framework AudioToolbox -framework CoreFoundation -Wno-unused-result"
 #else // unix
