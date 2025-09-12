@@ -9,7 +9,7 @@ A simple cross-platform command-line notification tool ⏰🔔, plus a lightweig
 * **Cross-platform**:
   * Linux (via `notify-send`)
   * macOS (via `osascript`)
-  * Windows (**coming soon**)
+  * Windows (via `MessageBox`)
 
 Perfect for break timers, lightweight reminders, or automating alerts directly from the terminal.
 
@@ -20,10 +20,10 @@ gcc build.c -o build
 
 # Example output:
 CMD: mkdir bin
-CMD: build main.c
-Saved to 'bin/notify'
+CMD: gcc -O2 main.c -o bin/notify
+MSG: Saved binary to './bin'
 ```
-This compiles `notify` and outputs the binary in the `bin/` directory.
+This compiles `notify` and saves the binary to the `bin/` folder.
 
 ## ▶️ Usage
 ### Basic reminder
