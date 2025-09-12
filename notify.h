@@ -8,13 +8,19 @@
 #include <time.h>
 
 #if defined(_WIN32) || defined(_WIN64)
-    #error "Unimplemented for Windows!"
+    #include <io.h>
+    #include <wchar.h>
+    #include <windows.h>
+    #include <mmsystem.h>
     #define ACCESS _access
     #define F_OK 0
 #else // unix & macos
     #include <unistd.h>
     #define ACCESS access
 #endif
+
+/// Temporary buffer size
+#define TMPBUF_SIZE 4096
 
 /**
  * Cross-platform bell function that plays system notification sound.
@@ -65,7 +71,7 @@ extern void ntf_sleep(const long msecs);
 int ntf_beep_system(void) {
     #if defined(_WIN32) || defined(_WIN64)
     {
-        #error "Unimplemented for Windows!"
+        MessageBeep(MB_OK);
     }
     #elif defined(__APPLE__) || defined(__MACH__)
     {
@@ -86,12 +92,14 @@ int ntf_beep(const char *audio_file) {
 
     #if defined(_WIN32) || defined(_WIN64)
     {
-        #error "Unimplemented for Windows!"
+        if (PlaySound(audio_file, NULL, SND_FILENAME | SND_ASYNC) == 0) {
+            ntf_beep_system();
+        }
     }
     #elif defined(__APPLE__) || defined(__MACH__)
     {
         // build the command to play the audio file
-        char command[1024] = {0};
+        char command[TMPBUF_SIZE] = {0};
         snprintf(command, sizeof(command), "afplay \"%s\" >/dev/null 2>&1 &", audio_file);
         
         // if all audio players failed, fall back to system beep
@@ -101,7 +109,7 @@ int ntf_beep(const char *audio_file) {
     {
         // play custom file
         int result = -1;
-        char command[1024] = {0};
+        char command[TMPBUF_SIZE] = {0};
         
         // try aplay first (ALSA)
         snprintf(command, sizeof(command), "aplay \"%s\" >/dev/null 2>&1 &", audio_file);
@@ -146,15 +154,17 @@ int ntf_notify(const char *source, const char *title, const char *message) {
     const char* safe_source = (source && *source) ? source : "Notify";
     const char* safe_title = (title && *title) ? title : "Notification";
     const char* safe_message = (message && *message) ? message : "";
-
+    
     #if defined(_WIN32) || defined(_WIN64)
     {
-        #error "Unimplemented for Windows!"
+        char full_message[TMPBUF_SIZE] = {0};
+        snprintf(full_message, sizeof(full_message), "%s\n\n%s", safe_title, safe_message);
+        MessageBoxA(NULL, full_message, safe_source, MB_OK | MB_ICONINFORMATION | MB_TOPMOST);        
     }
     #elif defined(__APPLE__) || defined(__MACH__)
     {
         // notify using osascript
-        char command[4096] = {0};
+        char command[TMPBUF_SIZE] = {0};
         snprintf(command, sizeof(command), 
                 "osascript -e 'display notification \"%s\" with title \"%s\" subtitle \"%s\"'",
                 safe_message, safe_title, safe_source);
@@ -168,7 +178,7 @@ int ntf_notify(const char *source, const char *title, const char *message) {
     #else // unix
     {
         // notify using notify-send
-        char command[4096] = {0};
+        char command[TMPBUF_SIZE] = {0};
         if (ACCESS("/usr/bin/notify-send", F_OK) == 0) {
             snprintf(command, sizeof(command),
                 "notify-send -a \"%s\" \"%s\" \"%s\" 2>/dev/null",
