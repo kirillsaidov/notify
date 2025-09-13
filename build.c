@@ -5,14 +5,9 @@
     #include <windows.h>
     #include <direct.h>
     #define mkdir(path, mode) _mkdir(path)
-    #define STAT _stat
-    #define ACCESS _access
-    #define F_OK 0
 #else // unix & macos
     #include <unistd.h>
     #include <sys/types.h>
-    #define STAT stat
-    #define ACCESS access
 #endif
 
 #include <sys/stat.h>
