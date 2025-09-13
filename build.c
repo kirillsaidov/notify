@@ -10,6 +10,7 @@
     #define ACCESS _access
     #define F_OK 0
 #else // unix & macos
+    #include <unistd.h>
     #include <sys/stat.h>
     #include <sys/types.h>
     #define STAT stat
