@@ -149,6 +149,7 @@ int main(void) {
         LOG_CMD("mv " BUILDER_BINARY_NAME " " BUILDER_BINARY_NAME_OLD);
         if (rename_file(BUILDER_BINARY_NAME, BUILDER_BINARY_NAME_OLD) != 0) {
             LOG_ERR("Failed to rename old binary.");
+            LOG_ERR("Rebuild manually: " CMD_REBUILD_THIS);
             return 1;
         }
 
