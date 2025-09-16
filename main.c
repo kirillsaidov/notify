@@ -42,8 +42,7 @@ int main(const int argc, const char *argv[]) {
             (i < argc - 1) ? " " : ""
         );
         if (written < 0 || (size_t)written >= sizeof(message) - offset) {
-            // Truncated or error
-            break;
+            break; // truncate
         }
         offset += written;
     }
@@ -54,26 +53,25 @@ int main(const int argc, const char *argv[]) {
     printf("Starting timer for: %s\n", time_str);
     printf("Message: %s\n", message);
 
-    // Countdown loop
+    // countdown loop
     long remaining = total_seconds;
     while (remaining >= 0) {
         ntf_format_time(remaining, time_str, sizeof(time_str));
 
-        // Clear line and print countdown
-        printf("\r%-20s", time_str);  // Fixed width for clean display
+        // clear line and print countdown
+        printf("\r%-20s", time_str);  // fixed-width for clean display
         fflush(stdout);
 
+        // timer completed
         if (remaining == 0) {
-            // Timer completed - show notification
             printf("\nTime's up!\n");
             ntf_beep(audio_file);
             ntf_notify("Notify", "Timer Complete", message);
             break;
         }
 
-        // Sleep for 1 second
+        // sleep for 1 second
         ntf_sleep(1000);
-
         remaining--;
     }
 
